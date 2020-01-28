@@ -36,7 +36,7 @@ const shapeGhee = Bodies.rectangle(w / 2 , h, 360, 154, {
   },
   render: {
     sprite: {
-      texture: '../img/ghee-logo-v2.png',
+      texture: 'img/ghee-logo-v2.png',
       xScale: 0.5,
       yScale: 0.5
     }
@@ -48,7 +48,7 @@ const shapeMotto = Bodies.rectangle(w / 2 - 100, h / 2 , 269, 30, {
   restitution: 0.8,
   render: {
     sprite: {
-      texture: '../img/ghee-motto.png',
+      texture: 'img/ghee-motto.png',
       xScale: 0.5,
       yScale: 0.5
     }
@@ -63,7 +63,7 @@ const shapePercentage = Bodies.rectangle(0 + 171, 0 , 51, 342, {
     },
   render: {
     sprite: {
-      texture: '../img/percentage.png',
+      texture: 'img/percentage.png',
       xScale: 0.5,
       yScale: 0.5
     }
@@ -78,7 +78,7 @@ const shapeJar = Bodies.rectangle(w - 95, 0 , 190, 290, {
     },
   render: {
     sprite: {
-      texture: '../img/ghee_jar.png',
+      texture: 'img/ghee_jar.png',
       xScale: 0.5,
       yScale: 0.5
     }
@@ -90,7 +90,7 @@ const shapeHundred = Bodies.rectangle(0 + 55, 0 , 110, 302, {
   restitution: 0.8,
   render: {
     sprite: {
-      texture: '../img/100.png',
+      texture: 'img/100.png',
       xScale: 0.5,
       yScale: 0.5
     }
