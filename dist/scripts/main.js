@@ -1,97 +1,169 @@
-let position
-let speed
-let radius
-let counter = 0
-const output = document.querySelector('div.score-wrap div.score')
+
+// two separate things matter.js needs
+// first is an engine - computation and math behind this
+// second a renderer - which draws what is actually happening
 
 
-function setup() {
-  createCanvas(windowWidth, windowHeight)
-  background('#f3f3f3')
-  position = createVector(200, 200)
-  speed = createVector(4, 4)
-	radius = 80
-	output.innerHTML = counter++
-}
+// shortcut to make our code cleaner
+const {Engine, Render, Bodies, World, MouseConstraint, Query, Composite} = Matter 
 
-function draw(x, y) {
-  this.x = x
-  this.y = y
-  background('#f3f3f385')
-  fill('#000')
-  circle(position.x, position.y, radius * 2)
-  noStroke()
-  position.add(speed)
-	
-    if (position.y > windowHeight - radius || position.y < radius){
-      speed.y = speed.y * -1
+// pick where matter is being deployed
+const sectionTag = document.querySelector('section.shapes')
+// what is the width and height of the page
+const w = window.innerWidth
+const h = window.innerHeight
+
+const engine = Engine.create()
+const renderer = Render.create({
+  element: sectionTag,
+  engine: engine,
+  options: {
+    height: h,
+    width: w,
+    background: '#F7C4C4',
+    wireframes: false,
+    pixelRatio: window.devicePixelRatio
+  }
+})
+
+
+
+// make a shape from a sprite - plus making it retina friendly
+const shapeGhee = Bodies.rectangle(w / 2 , h, 360, 154, {
+  restitution: 0.8,
+  chamfer: { 
+    radius: [30, 50, 40, 30]
+  },
+  render: {
+    sprite: {
+      texture: '../img/ghee-logo-v2.png',
+      xScale: 0.5,
+      yScale: 0.5
     }
+  }
+})
 
-    if (position.x > windowWidth - radius || position.x < radius){
-        speed.x = speed.x * -1
+// make a shape from a sprite - plus making it retina friendly
+const shapeMotto = Bodies.rectangle(w / 2 - 100, h / 2 , 269, 30, {
+  restitution: 0.8,
+  render: {
+    sprite: {
+      texture: '../img/ghee-motto.png',
+      xScale: 0.5,
+      yScale: 0.5
     }
+  }
+})
 
-    const distToCursor = dist(mouseX, mouseY, position.x, position.y)
-      if (distToCursor < radius) {
-        cursor('crosshair')
-      } else {
-        cursor('auto')
-      }
-  
-    this.clicked = function(){
-      const d = dist(mouseX, mouseY, position.x, position.y)
-      let angle = random(TWO_PI)
-
-//    output.style.transform = 'rotate3d(1, 0, 1, 360deg)'
-
-      if (d < radius) {
-        output.innerHTML = counter++  
-        speed.mult(1.2)
-        speed.rotate(angle)
-        radius = radius -5
-				// animate the score 
-        scoreAnimate()
-				//output.classList.toggle('hit')
-       	// output.style.transform = 'rotate3d(1, 0, 1, 360deg)'
-      }
-
-			// add some supportive alerts
-			const alertTag = document.querySelectorAll('div.alerts h3')
-			let finishTime = 1400
-
-			alertTag.forEach((tag, index) => {
-        if (output.innerHTML == 3 && index == 0 || 
-            output.innerHTML == 6 && index == 1 || 
-            output.innerHTML == 10 && index == 2 || 
-            output.innerHTML == 12 && index == 3) {
-          tag.classList.add('active')
-          setTimeout(function() {
-              tag.classList.add('finished')
-          }, finishTime);
-        }
-      })
-      
-      function scoreAnimate() {
-        output.classList.toggle('hit')
-      }
-      
+// make a shape from a sprite - plus making it retina friendly
+const shapePercentage = Bodies.rectangle(0 + 171, 0 , 51, 342, {
+  restitution: 0.8,
+  chamfer: { 
+      radius: [0, 20, 0, 20]
+    },
+  render: {
+    sprite: {
+      texture: '../img/percentage.png',
+      xScale: 0.5,
+      yScale: 0.5
     }
+  }
+})
 
-	positionX = constrain(position.x, radius, windowWidth - radius)
-	positionY = constrain(position.y, radius, windowHeight - radius)
+// make a shape from a sprite - plus making it retina friendly
+const shapeJar = Bodies.rectangle(w - 95, 0 , 190, 290, {
+  restitution: 0.8,
+  chamfer: { 
+      radius: [20, 20, 20, 20]
+    },
+  render: {
+    sprite: {
+      texture: '../img/ghee_jar.png',
+      xScale: 0.5,
+      yScale: 0.5
+    }
+  }
+})
 
+// make a shape from a sprite - plus making it retina friendly
+const shapeHundred = Bodies.rectangle(0 + 55, 0 , 110, 302, {
+  restitution: 0.8,
+  render: {
+    sprite: {
+      texture: '../img/100.png',
+      xScale: 0.5,
+      yScale: 0.5
+    }
+  }
+})
+
+
+
+// here we can make option and pass in the variables to shapes
+// for cleaner code
+const wallOptions = {
+  isStatic: true,
+  render: {
+    visible: false
+  }
 }
 
-function mousePressed(){
-  clicked()
+// create walls
+const ground = Bodies.rectangle(w / 2, h + 50, w + 100, 100, wallOptions)
+const ceiling = Bodies.rectangle(w / 2, - 50, w + 100, 100, wallOptions)
+const leftWall = Bodies.rectangle(-50, h / 2, 100, h + 100, wallOptions)
+const rightWall = Bodies.rectangle(w + 50, h / 2, 100, h + 100, wallOptions)
+
+// add mouse interaction
+const mouseControl = MouseConstraint.create(engine, {
+  element: sectionTag,
+  constraint: {
+    render: {
+      visible: false
+    }
+  }
+})
+
+
+window.addEventListener('deviceorientation', function (event) {
+  if (window.innerWidth < 500) {
+    engine.world.gravity.y = event.beta / 40
+  	engine.world.gravity.x = event.gamma / 40
+  }
+})
+
+
+
+// add shapes to the world
+World.add(engine.world, [
+  shapeGhee,
+  shapeMotto,
+  shapePercentage,
+  shapeJar,
+  shapeHundred,
+  ground,
+  ceiling,
+  leftWall,
+  rightWall,
+  mouseControl
+])
+
+
+// alter gravity
+engine.world.gravity.y = 5;
+// run both the engine and the renderer
+// run engine
+Engine.run(engine)
+// run render
+Render.run(renderer)
+
+
+// on window resize, reload window
+window.onresize = function () {
+  location.reload()
 }
 
-function touchStarted(){
-  clicked()
-}
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight)
-}
+
 
 
